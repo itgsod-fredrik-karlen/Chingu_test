@@ -48,11 +48,12 @@ end
 
 class Laser < Chingu::GameObject
 	
-	has_traits :velocity
+	has_traits :velocity, :timer
 
 	def setup
 		@image = Gosu::Image["laser.png"]
 		self.velocity_y = -10
+		after(1500) {self.destroy}
 	end
 end
 
