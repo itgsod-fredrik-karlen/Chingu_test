@@ -7,13 +7,16 @@ class Game < Chingu::Window
 		self.input = {esc: :exit}
 		Background.create
 		Player.create
-		5.times {Cookie.create}
+		6.times {Cookie.create}
 	end
 
 	def update
 		super
 	Laser.each_bounding_circle_collision(Cookie) do |laser, target|
       		laser.destroy
+      		target.destroy
+    	end
+    Giantlaser.each_bounding_circle_collision(Cookie) do |giantlaser, target|
       		target.destroy
     	end
 	end
@@ -26,12 +29,14 @@ class Player <Chingu::GameObject
 	def setup
 		@x = 400
 		@y = 300
+		
 		@image = Gosu::Image["ship.png"]
 		self.input = {holding_left: :left,
 					holding_right: :right,
 					holding_up: :up,
 					holding_down: :down,
-					space: :fire}
+					space: :fire1,
+					left_shift: :fire2}
 		@speed = 10
 		@angle = 0
 		
@@ -63,8 +68,12 @@ class Player <Chingu::GameObject
 		self.velocity_x -= Gosu::offset_x(@angle, 1.0)
 	end
 
-	def fire
+	 def fire1
 		Laser.create(x: self.x, y: self.y, angle: self.angle)
+	 end
+
+	def fire2
+		Giantlaser.create(x: self.x, y: self.y, angle: self.angle)
 	end
 end
 
@@ -73,9 +82,21 @@ class Laser < Chingu::GameObject
 	has_traits :velocity, :timer, :collision_detection, :bounding_circle
 	def setup
 		@image = Gosu::Image["laser.png"]
+		self.velocity_y = Gosu::offset_y(@angle, 30)
+		self.velocity_x = Gosu::offset_x(@angle, 30)
+		after(1500) {self.destroy}
+
+	end
+end
+
+class Giantlaser < Chingu::GameObject
+	
+	has_traits :velocity, :timer, :collision_detection, :bounding_circle
+	def setup
+		@image = Gosu::Image["giantlaser.png"]
 		self.velocity_y = Gosu::offset_y(@angle, 20)
 		self.velocity_x = Gosu::offset_x(@angle, 20)
-		after(1500) {self.destroy}
+		after(3000) {self.destroy}
 
 	end
 
